@@ -1,5 +1,7 @@
 
 const path = require('path');
+const webpack = require('webpack');
+
 module.exports = {
   entry: {
     index: './src/index.js',
@@ -9,7 +11,7 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: '[name].js'
   },
-  mode: 'production',
+  mode: 'development',
   module: {
     rules: [
       {
@@ -43,5 +45,12 @@ module.exports = {
         ]
       }
     ]
+  },
+  plugins: [
+  ],
+  devServer: {
+    contentBase: './dist',
+    hot: true,
+    port: 8080
   }
 }

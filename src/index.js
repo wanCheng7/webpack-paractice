@@ -1,1 +1,1 @@
-document.write('index')
+document.write('index pages2')

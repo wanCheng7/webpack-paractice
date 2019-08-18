@@ -72,3 +72,43 @@ yarn add url-loader -D
 }
 ```
 
+### 文件监听
+`webpack`开启监听模式，有两种方式：
+- 启动webpack命令时，带上--watch参数
+- 在配置webpack.config.js中设置 watch:true
+
+这种方式执行命令之后不会刷新浏览器，所以需要手动刷新才能看到效果
+
+原理是采用的轮询，判断最后修改时间是否发生了变化。轮询选项是可以配置的
+
+### 热更新及原理分析
+添加依赖：
+```
+yarn add webpack webpack-cli webpack-dev-server -D
+```
+
+在`webpack.config.js`的配置加加上`webpack`内置插件`HotModuleReplacementPlugin`以及做相关配置：
+```
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ],
+  devServer: {
+    contentBase: './dist',
+    hot: true
+  }
+```
+注意：这里的`HotModuleReplacementPlugin plugins`在`hot`设为`true`的情况下是会被自动引入的。这里只是为了说明原理一起写出来。
+
+在`package.json`中添加执行命令
+```
+"dev": "webpack-dev-server --open"
+```
+
+原理：
+>  webpack-dev-server(WDS)的功能提供 bundle server的能力，就是生成的 bundle.js 文件可以通过 localhost://xxx 的方式去访问，另外 WDS 也提供 livereload(浏览器的自动刷新)。
+
+> hot-module-replacement-plugin 的作用是提供 HMR 的 runtime，并且将 runtime 注入到 bundle.js 代码里面去。一旦磁盘里面的文件修改，那么 HMR server 会将有修改的 js module 信息发送给 HMR runtime，然后 HMR runtime 去局部更新页面的代码。因此这种方式可以不用刷新浏览器。
+
+关于浏览器还是会整体刷新的问题：（待探究）
+
+`webpack-dev-server` 默认是会在内容编译完成后自动刷新(liveload)浏览器的，此处增加了 `HotModuleReplacementPlugin` 插件之后可以做到 HMR的。如果HMR失败的化会降级使用 `liveload` 自动刷新浏览器模式。
