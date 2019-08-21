@@ -112,3 +112,32 @@ yarn add webpack webpack-cli webpack-dev-server -D
 关于浏览器还是会整体刷新的问题：（待探究）
 
 `webpack-dev-server` 默认是会在内容编译完成后自动刷新(liveload)浏览器的，此处增加了 `HotModuleReplacementPlugin` 插件之后可以做到 HMR的。如果HMR失败的化会降级使用 `liveload` 自动刷新浏览器模式。
+
+### 文件指纹策略
+> 打包输出的文件名的后缀
+
+常见的文件指纹类型：
+- Hash: 和整个项目的构建相关，只要项目文件有修改，整个项构建的hash值就会更改
+- Chunkhash：和`webpack`打包的`chunk`有关，不同的`entry`会生成不同的`chunkhash`值
+- Contenthash：根据文件内容来定义`hash`，文件内容不变，则`contenthash`不变
+
+一般对于js文件我们使用`chunkhash`，对于css文件使用`contenthash`。对于css文件需要单独分离的话一般使用`MiniCssExtractPlugin`进行分离，设置filename时时使用`contenthash`（js待敌有没有contenthash，值得查一下）
+```
+// 添加依赖
+yarn add mini-css-extract-plugin -D
+```
+
+### HTML、CSS、JS代码压缩
+**JS文件的压缩**：webpack4之后内置了`uglifyjs-webpack-plugin`可以进行JS压缩
+
+**CSS文件的压缩**：使用`optimize-css-assets-webpack-plugin`，同时使用`cssnano`
+```
+//安装依赖
+yarn add cssnano optimize-css-assets-webpack-plugin -D
+```
+
+HTML文件压缩：使用`html-webpack-plugin`:
+```
+//安装依赖
+yarn add html-webpack-plugin -D
+```
