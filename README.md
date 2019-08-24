@@ -1,5 +1,3 @@
-# 玩转webpack学习笔记
-
 ### Loaders
 `webpack`开箱即用只支持`JS`和`JSON`两种文件类型，通过`loaders`去支持其他文件类型并且把它们转化成有效的模块，并且可以添加到依赖中。
 > loaders本身十个函数，接受源文件作为参数，返回转换的结果
@@ -140,4 +138,85 @@ HTML文件压缩：使用`html-webpack-plugin`:
 ```
 //安装依赖
 yarn add html-webpack-plugin -D
+// 配置
+new HtmlWebpackPlugin({
+  template: path.join(__dirname, 'src/index.html'),
+  filename: 'index.html',
+  chunks: ['index'],
+  inject: true,
+  minify: {
+      html5: true,
+      collapseWhitespace: true,
+      preserveLineBreaks: false,
+      minifyCSS: true,
+      minifyJS: true,
+      removeComments: false
+  }
+}),
 ```
+
+### 自动清理构建目录产物
+使用`clean-webpack-plugin`默认会删除output指定的输出目录
+```
+//安装依赖
+yarn add clean-webpack-plugin -D
+// 插件中使用
+new CleanWebpackPlugin(),
+```
+
+### PostCSS插件autoprefixer
+利用`autoprefixer`实现浏览器兼容前缀补齐
+```
+//安装依赖
+yarn add postcss-loader autoprefixer -D
+//添加loder配置
+{
+    loader: 'postcss-loader',
+    options: {
+      plugins: () => [
+          require('autoprefixer')({
+            overrideBrowserslist: ['last 2 version', '>1%', 'ios 7']
+          })
+      ]
+    }
+}
+```
+
+### 移动端css px自动转换成rem
+核心是利用`px2rem-loader`这个loader实现
+```
+//安装依赖
+yarn add px2rem-loader -D
+//动态计算rem值
+yarn add lib-flexible -S  
+```
+添加`px2rem-loader`配置
+```
+{
+    loader: 'px2rem-loader',
+    options: {
+      remUnit: 75,  //表示1rem等于75px
+      remPrecision: 8  //小数点位数
+    }
+}
+```
+实际项目中如果不考虑超低版本安卓兼容性的话可以直接将HTML的`font-size`设为`vw`值，以750设计稿为例，如果我们想让HTML的``font-size`表示`100px`，经换算（100/750*100）约等于13.33333333vw，这个时候直接将`remUnit`设为100就好了。
+
+### 静态资源内联
+可以使用`raw-loader`实现js、html内联
+```
+//安装依赖
+yarn add raw-loader@0.5.1 -D
+```
+模拟在`<head>`中动态插入一些`<meta>`和js
+```
+${ require('raw-loader!./meta.html') }
+  <title>index</title>
+  <script>
+    ${ require('raw-loader!babel-loader!../node_modules/lib-flexible/flexible.js') }
+  </script>
+```
+
+
+
+

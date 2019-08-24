@@ -10,7 +10,7 @@ class Search extends Component {
       <div className="search-text">
         <img src={demoImg} />
         <img src={erweimaImg} alt=""/>
-        <div className="search-text">Search Test 258</div>
+        <div className="search-text">Search Test 520</div>
       </div>
     )
   }
