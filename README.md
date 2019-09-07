@@ -276,6 +276,74 @@ plugins: [
 ]
 ```
 
+不过这里关于解析多页面路径的方式我之前一个项目里用的是`fs`模块解析的，同样能够实现，代码如下：
+```
+//获取html插件
+const getAppIndex = (files) => {
+  return files.reduce((data, file) => {
+    const [key, template, appJs] = file;
+    if( fs.existsSync( appJs ) ){
+      data.appIndexJs[key] = [
+        'babel-polyfill',
+        appJs
+      ];
+      data.appHtml.push(
+        new HtmlWebpackPlugin({
+          template: template,
+          filename: `${key}.html`,
+          chunks: [key]
+        })
+      )
+    }
+    return data;
+  }, {
+    appIndexJs: { },
+    appHtml: [ ]
+  })
+}
+
+const { appIndexJs, appHtml } = getAppIndex(paths.appIndex);
+```
+按这两种方式区别的什么，优劣如何呢，待探究!
+
+### 使用source map
+阮一峰老师的[介绍文章](http://www.ruanyifeng.com/blog/2013/01/javascript_source_map.html)
+
+在`webpack`的[`devtool`](https://webpack.docschina.org/configuration/devtool/)可以设置不同的值，一般只在开发环境开启，线上环境不会，这个可以可以帮助我们快速定位代码报错的地方，直指源代码。
+```
+devtool: 'source-map'
+```
+
+### 提取页面公共资源
+主要是利用[`SplitChunksPlugin`](https://webpack.docschina.org/plugins/split-chunks-plugin/#src/components/Sidebar/Sidebar.jsx)这个插件来提取公共代码，在`webpack 4.x`以后内置了这个插件，配置的`key`是`optimization`:
+```
+module.exports = {
+  //...
+  optimization: {
+      splitChunks: {
+          minSize: 0,
+          cacheGroups: {
+              commons: {
+                  name: 'commons',
+                  chunks: 'all',
+                  minChunks: 2
+              }
+          }
+      }
+  }
+};
+// 还要在相应的HtmlWebpackPlugin加上chunk名
+chunks: ['commons', pageName],
+```
+这样符合要求的代码就会被单独打成一个js文件，并且会被`HTML`文件单独引入
+
+还有利用`html-webpack-externals-plugin`这个插件
+```
+//安装依赖
+yarn add html-webpack-externals-plugin -D
+```
+
+
 
 
 
