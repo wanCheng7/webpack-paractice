@@ -217,6 +217,65 @@ ${ require('raw-loader!./meta.html') }
   </script>
 ```
 
+### 多页面应用打包方案
+利用`Glob`解析约定目录里的所有文件作为入口文件
+```
+//安装依赖
+yarn add Glob -D
+```
+约定每个页面的模板文件为`index.html`，入口文件为`index.js`，然后就可以得到一个动态的入口配置和`htmpWebpackPlugins`配置：
+```
+// 设置多页面应用的入口和HTML魔板配置
+const setMPA = () => {
+  const entry = {};
+  const htmlWebpackPlugins = [];
+
+  const entryFiles = glob.sync(path.join(__dirname, './src/*/index.js'));
+  entryFiles.forEach((item ,idx) => {
+     const match = item.match(/src\/(.*)\/index.js/);
+     const pageName = match && match[1];
+     entry[pageName] = item;
+     htmlWebpackPlugins.push(
+      new HtmlWebpackPlugin({
+        template: path.join(__dirname, `src/${pageName}/index.html`),
+        filename: `${pageName}.html`,
+        chunks: [pageName],
+        inject: true,
+        minify: {
+            html5: true,
+            collapseWhitespace: true,
+            preserveLineBreaks: false,
+            minifyCSS: true,
+            minifyJS: true,
+            removeComments: false
+        }
+      })
+     )
+  })
+
+  return {
+    entry,
+    htmlWebpackPlugins
+  }
+}
+
+const { entry, htmlWebpackPlugins } = setMPA();
+```
+然后在配置中替换之前的`entry`和写死的`htmlWebpackPlugins`:
+```
+// entry: {
+//   index: './src/index.js',
+//   search: './src/search.js'
+// },
+entry,
+
+plugins: [
+    //之前的别的plugins
+    //动态页面的模板文件
+    ...htmlWebpackPlugins
+]
+```
+
 
 
 
