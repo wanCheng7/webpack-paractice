@@ -343,6 +343,20 @@ chunks: ['commons', pageName],
 yarn add html-webpack-externals-plugin -D
 ```
 
+### Tree Shaking的使用和原理分析
+> 一个概念： DCE(dead code elimination) 无用代码擦除
+
+**Tree-shaking原理:**
+
+`Tree-shaking`在`webpack`生成环境中是默认开启的，也是就是配置文件的`mode`为`production`时。主要是利用了`ES6`代码引入的模块需要前置所以可以做静态分析的特性，所以只能对`ES6`代码进行，其他如`commonJS`方案动态引入模块的就不行。具体来说利用了ES6模块的以下特点：
+
+- 只能作为模块顶层的语句出现
+- import的模块名只能是字符串常量
+- import binding 是 immutable 的
+
+代码擦除：`uglify`阶段擦除无用代码
+
+`Tree-shaking`生效的前提是引入代码模块中不能有副作用，不然`Tree-shaking`就不会生效了。
 
 
 
